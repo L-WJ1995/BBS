@@ -1,0 +1,11 @@
+doctype html
+html
+  head
+    title= "BBS注册"
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/register_login.css')
+  body
+    form(action="/register" method="post")
+      input(type="text" name="username" autofocus="autofocus" autocomplete="off" placeholder="请输入用户名")
+      input(type="password" name="password"  placeholder="请输入密码")
+      button 注册
