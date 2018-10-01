@@ -7,7 +7,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 
 const indexRouter = require('./routes/index')
-const usersRouter = require('./routes/users')
+
 
 const app = express()
 app.locals.pretty = true
@@ -31,10 +31,11 @@ app.use((req, res, next) => {
 
 app.use(session({
   secret:"my app secret",
-  saveUninitialized: false,
+  saveUninitialized: true,
   resave : true,
   cookie : {
-        maxAge : 1000 * 60 * 3, // 设置 session 的有效时间，单位毫秒
+        httpOnly: true,
+        maxAge : 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒
   },
 }))
 

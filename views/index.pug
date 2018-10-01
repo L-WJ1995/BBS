@@ -15,7 +15,7 @@ html
             div(class="form-group")
               label(class="col-sm-2 control-label" for="password") 密码 
               div(class="col-sm-10")
-                input(class="form-control" type="password" name="password"  placeholder="请输入密码" id="password")
+                input(class="form-control" type="password" name="password"  placeholder="请输入密码" id="password" autocomplete="off")
             div(class="form-group")
               label(class="col-sm-2 control-label" for="captcha") 验证码 
               div(class="col-sm-10")
@@ -25,11 +25,11 @@ html
               div(class="col-sm-offset-2 col-sm-10")
                 div(class="checkbox" style="float:right")
                   label
-                    input(type="checkbox")
-                    |记住密码
+                    input(id="keepLogin" type="checkbox" tabindex="-1")
+                    |保持登录
             div(class="form-group")
               div(class="col-sm-offset-2 col-sm-10")
-                button(type="submit" class="btn btn-primary active" name="SignUp" style="width:45%; float:left;")="Sign Up"
+                button(type="submit" class="btn btn-primary active" name="SignUp" style="width:45%; float:left;" tabindex="-1")="Sign Up"
                 button(type="submit" class="btn btn-success active" name="SignIn" style="width:45%; float:right;")="Sign In"
     button( style="display:none" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm")
     div(class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel")
@@ -41,7 +41,7 @@ html
           div(class="modal-body" style="font-size:18px; text-indent:20px;")
             span
           div(class="modal-footer")
-            button(type="button" class="btn btn-block" data-dismiss="modal")="Close"
+            button(type="button" class="btn btn-block " data-dismiss="modal")="Close"
       
     script(src="/javascripts/jquery.min.js")
     script(src="/javascripts/axios.min.js")

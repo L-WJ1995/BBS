@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => captcha_img.click())
 
-let userLogin = $("[name='SignIn']")
-let userRegister = $("[name='SignUp']");
+let userLogin = $("[name='SignIn']")[0]
+let userRegister = $("[name='SignUp']")[0];
 [userLogin, userRegister].forEach((item, index) => {
-    item.click((event) => {
-      var event = event || window.event
-      event.preventDefault()
-      window.event.returnValue = false
+    item.onclick = (e) => {
+      let event = e || window.event
+      if (event.preventDefault) event.preventDefault()
+      else event.returnValue = false
       if (index === 0) login()
       else register()
-   })
+   }
 })
 
 function login() {
@@ -23,6 +23,7 @@ function login() {
       username:username.value + "",
       password:password.value + "",
       captcha:captcha.value.toUpperCase() + "",
+      keepLogin:keepLogin.checked,
       type:"login",
     }
   }).then((res) => {
@@ -42,6 +43,7 @@ function register() {
       password:password.value + "",
       captcha:captcha.value.toUpperCase() + "",
       avatarPath:"", //暂时未添加头像功能
+      keepLogin:keepLogin.checked,
       type:"register",
     }
   }).then((res) => {
@@ -144,4 +146,13 @@ function res_status(data) {
     captcha_img.click()
     modal_status()
   }
+}
+
+
+document.onkeydown = (e) => {
+  if (e.keyCode !== 13) return
+  let event = e || window.event
+  event.preventDefault()
+  window.event.returnValue = false
+  userLogin.click()
 }

@@ -1,5 +1,54 @@
 extends layout.pug
 
-
+append css
+  link(rel='stylesheet', href='/stylesheets/home.css')
+  link(rel='stylesheet', href='/stylesheets/css/bootstrap.css')
 block content
-  h1 欢迎 #{user.name}
+  div#shade
+  nav(class="navbar navbar-default navbar-fixed-top navbar-inverse")
+    div(class="container")
+      ul
+        li 
+          strong 欢迎 #{user.name}
+        li
+          form(action="/logOut" method="get")
+            button(class="btn btn-warning") 退出登录
+  div#conten-box
+    table(class="table table-hover")
+      each data in datas
+        tr
+          td(title=data.title)
+            a(target="_blank" href="/getcontent/" + data.id)= data.title
+          td
+            a(target="_blank" href="/getuser/" + data.id)= data.username
+          td
+            a(target="_blank" href="/getcontent/" + data.id)= data.time
+  div(class="submit_content")
+    div#arrows(onselectstart="return false") 
+      span 发帖
+    form(class="form-horizontal" action="/add_post" method="post")
+      div(class="form-group")
+        div(class=" input-group")
+          span(class="input-group-addon") 标题
+          input(type="text" class="form-control" id="submit_title" name="title" autocomplete="off")
+      div(class="form-group")
+        div(class="nopadding")
+          textarea(class="form-control" rows="10"  style="resize:none" name="content" id="submit_text" autocomplete="off")
+      div(class="form-group")
+        div(class="col-sm-offset-2  nopadding")
+          button(id="submit_content" type="submit" class="btn btn-success btn-block") 提交
+  button(style="display:none" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm" )
+  div(class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="modal_tip")
+    div(class="modal-dialog modal-sm" role="document")
+      div(class="modal-content")
+        div(class="modal-header")
+          h3(class="modal-title" id="gridSystemModalLabel")
+            span
+        div(class="modal-body" style="font-size:18px; text-indent:20px;")
+          span
+        div(class="modal-footer")
+          button(type="button" class="btn btn-block" data-dismiss="modal")="Close"
+  script(src="/javascripts/jquery.min.js")
+  script(src="/javascripts/axios.min.js")
+  script(src="/javascripts/home.js")
+  script(src="/javascripts/bootstrap.js")      

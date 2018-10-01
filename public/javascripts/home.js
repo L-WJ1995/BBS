@@ -1,0 +1,76 @@
+arrows.onclick = () => {
+  shade.style.display = "block"
+  setTimeout(() => shade.style["background-color"] = "rgba(0,0,0,0.5)" ,0)
+  arrows.style.display = "none"
+  arrows.parentNode.classList.add("trans-in")
+}
+
+shade.onclick = () => {
+  shade.style.display = "block"
+  setTimeout(() => shade.style["background-color"] = "transparent" ,0)
+  arrows.parentNode.classList.add("trans-out")
+  setTimeout(() => {
+    shade.style.display = "none"
+    arrows.parentNode.classList.remove("trans-in", "trans-out")
+    arrows.style.display = "block"
+  },1000)
+}
+
+submit_content.onclick = (e) => {
+  let event = e || window.event
+  if (event.preventDefault) event.preventDefault()
+  else event.returnValue = false
+  if(submit_title.value === "" || submit_text.value === "" ) {
+    $(".modal-title span").text("错误！")
+    $(".modal-body span").text("标题或内容不能为空！")
+    $(".modal-footer button").addClass("btn-warning").text("Close")
+    modal_status()
+  } else {
+      axios({
+        method:'post',
+        url:'/add_post',
+        data:{
+          title: submit_title.value,
+          content: submit_text.value,
+        }
+      }).then((res) => {
+          res_status(res.data)
+      })
+  }
+}
+
+
+function res_status(data) {
+  console.log(data)
+  switch(data.status) {
+    case 100: {
+      $(".modal-title span").text("发帖成功")
+      $(".modal-body span").text("正在跳转")
+      $(".modal-footer button").removeClass("btn-warning").addClass("btn-success").text("刷新中...")
+      $(".bs-example-modal-sm").modal("show")
+      setTimeout(() => window.location.href = "./", 100)
+      break
+    }
+
+    case 201: {
+      $(".modal-title span").text("发帖失败")
+      $(".modal-body span").text("用户身份过期,请重新登录！")
+      $(".modal-footer button").addClass("btn-warning").text("Close")
+      break
+    }
+
+  }
+  modal_status()
+}
+
+
+function modal_status() {
+  $(".bs-example-modal-sm").modal("show")
+  let modal_ID = setTimeout(() => {
+    $(".bs-example-modal-sm").modal("hide")
+  }, 5000)
+  $(".bs-example-modal-sm").on("hidden.bs.modal", () => {
+    clearTimeout(modal_ID)
+    $(".bs-example-modal-sm").off("hidden.bs.modal")
+  })
+}

@@ -3,10 +3,6 @@
   margin: 0;
   padding:0;
 }
-html,body{
-  width: 100%;
-  height: 100%;
-}
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
@@ -18,8 +14,4 @@ li{
 
 a {
   color: #00B7FF;
-}
-
-#chatBox{
-  border:1px solid black;
 }
