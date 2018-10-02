@@ -31,22 +31,20 @@ app.use((req, res, next) => {
 
 app.use(session({
   secret:"my app secret",
-  saveUninitialized: true,
+  saveUninitialized: false,
   resave : true,
   cookie : {
-        httpOnly: true,
-        maxAge : 1000 * 60 * 30, // 设置 session 的有效时间，单位毫秒
+        maxAge : 1000 * 60, // 设置 session 的有效时间，单位毫秒
   },
 }))
 
 app.use(async (req, res, next) => {
-  req.user = await db.get('SELECT name FROM users WHERE id= ?', req.signedCookies.userID)
+  req.user = await db.get('SELECT * FROM users WHERE id= ?', req.signedCookies.userID)
+  req.contentID = req.signedCookies.contentID
   next()
 })
 
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

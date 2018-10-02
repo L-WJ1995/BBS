@@ -4,7 +4,7 @@ const router = express.Router()
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
-  if(req.session.login) {
+  if(req.session && req.session.login) {
     let datas = await db.all('SELECT * FROM contents ORDER BY id DESC')
     res.render("home", {user:req.user, datas})
   }
@@ -18,7 +18,7 @@ router.get('/', async function(req, res, next) {
         res.render("home", {user:req.user, datas})
       } else {
         res.clearCookie('userID')
-        res.send("用户名不存在")
+        res.redirect('/')
       }
     } else res.render("index")
   }
@@ -82,21 +82,58 @@ router.post('/registerORlogin', async (req, res, next) => {
 })
 
 router.get('/logOut', (req, res, next) => {
-  req.session.login = false
   res.clearCookie('userID')
   res.redirect('/')
 })
 
 
 router.post('/add_post', async (req, res, next) => {
-  if (req.user.id - 0 >= 0) {
+  console.log(req.body.content)
+  if (req.user && req.user.id - 0 >= 0) {
     await db.run('INSERT INTO contents (title, content, time, userid, username) VALUES (?,?,?,?,?)', 
            req.body.title, req.body.content, new Date().toLocaleString(), req.user.id, req.user.name)
-    res.json({status:100, msg:"发帖成功"})
+    let contentID = await db.get('SELECT id FROM contents WHERE  username=? ORDER BY id DESC LIMIT 1', req.user.name)
+    res.json({status:100, msg:"发帖成功", userID: req.user.id, contentID:contentID.id})
   } else {
+      req.session.login = false
+      res.clearCookie('userID')
       res.json({status:201, msg:"用户身份过期"})
   }
 
+})
+
+
+
+router.get('/content/:contentID', async (req, res, next) => {
+  let contentData = await db.get('SELECT * FROM contents WHERE id=?', req.params.contentID)
+  let commentData = await db.all('SELECT * FROM comments WHERE contentid=? ORDER BY id ASC', req.params.contentID)
+
+  for (let data of commentData) {
+    console.log(data)
+    data.commentsComments = await db.all('SELECT * FROM commentsComments WHERE commentid=? ORDER BY id ASC', data.id)
+    console.log(data)
+    console.log(commentData)
+  }
+
+  if (contentData.username === req.user.name) contentData.isContentUser = true
+  console.log(contentData)
+  console.log(commentData)
+  res.cookie('contentID', req.params.contentID, {httpOnly: true, signed: true})
+  res.render('content',{user:req.user, contentData, commentData})
+})
+
+
+router.post('/add_comment', async (req, res, next) => {
+  console.log(req.body.comment)
+  if (req.user && req.user.id - 0 >= 0) {
+    await db.run('INSERT INTO comments (comment, contentid, userid, username, time) VALUES (?,?,?,?,?)', 
+           req.body.comment, req.contentID, req.user.id, req.user.name, new Date().toLocaleString())
+    res.json({status:100, msg:"评论成功", contentID:req.contentID})
+  } else {
+      req.session.login = false
+      res.clearCookie('userID')
+      res.json({status:201, msg:"用户身份过期"})
+  }
 })
 
 

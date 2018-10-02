@@ -20,18 +20,17 @@ submit_content.onclick = (e) => {
   let event = e || window.event
   if (event.preventDefault) event.preventDefault()
   else event.returnValue = false
-  if(submit_title.value === "" || submit_text.value === "" ) {
+  if(submit_text.value === "" ) {
     $(".modal-title span").text("错误！")
-    $(".modal-body span").text("标题或内容不能为空！")
+    $(".modal-body span").text("评论内容不能为空！")
     $(".modal-footer button").addClass("btn-warning").text("Close")
     modal_status()
   } else {
       axios({
         method:'post',
-        url:'/add_post',
+        url:'/add_comment',
         data:{
-          title: submit_title.value,
-          content: submit_text.value,
+          comment: submit_text.value,
         }
       }).then((res) => {
           res_status(res.data)
@@ -45,16 +44,16 @@ function res_status(data) {
   console.log(data)
   switch(data.status) {
     case 100: {
-      $(".modal-title span").text("发帖成功")
-      $(".modal-body span").text("正在跳转")
+      $(".modal-title span").text("评论成功")
+      $(".modal-body span").text("正在刷新")
       $(".modal-footer button").removeClass("btn-warning").addClass("btn-success").text("刷新中...")
       $(".bs-example-modal-sm").modal("show")
-      setTimeout(() => window.location.href = "./content/" + data.contentID, 100)
+      setTimeout(() => window.location.href = "./" + data.contentID, 100)
       break
     }
 
     case 201: {
-      $(".modal-title span").text("发帖失败")
+      $(".modal-title span").text("评论失败")
       $(".modal-body span").text("用户身份过期,请重新登录！")
       $(".modal-footer button").addClass("btn-warning").text("Close")
       setTimeout(() => window.location.href = "./", 3000)

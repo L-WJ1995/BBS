@@ -1,9 +1,9 @@
 extends layout.pug
 
 append css
-  link(rel='stylesheet', href='/stylesheets/home.css')
+  link(rel='stylesheet', href='/stylesheets/content.css')
 append js
-  script(src="/javascripts/home.js")    
+  script(src="/javascripts/content.js")    
 block content
   div(id="shade")
   nav(class="navbar navbar-default navbar-fixed-top navbar-inverse")
@@ -14,30 +14,50 @@ block content
         li
           form(action="/logOut" method="get")
             button(class="btn btn-warning") 退出登录
+        li
+          form(action="/" method="get")
+            button(class="btn btn-primary") 返回首页   
   div#conten-box
-    table(class="table table-hover")
-      each data in datas
+    table(class="table")
         tr
-          td(title=data.title)
-            a(target="_blank" href="/getcontent/" + data.id)= data.title
+          td(id="content_title")
+            span= contentData.title
+            div
+              span= contentData.time
+              span= contentData.username
+        tr
           td
-            a(target="_blank" href="/getuser/" + data.id)= data.username
-          td
-            a(target="_blank" href="/getcontent/" + data.id)= data.time
+            span(class="user_content")= contentData.content
+        each val in commentData
+          tr
+            td(class="comment_box")
+              span= val.comment
+              div
+                span= val.time
+                span= val.username
+              if (val.comments)
+                div(class="comment_comment_box")
+                  ul
+                    each comment_val in val.comments
+                      li
+                        if (comment_val.username === val.username)
+                          span 层主 #{comment_val.username} 回复 #{val.tousername}:
+                        else
+                          span #{comment_val.username} 对 #{val.tousername} 说:
+                        span= comment_val.saycomment
+                        div
+                          span= comment_val.time
+                          span= comment_val.username
   div(class="submit_content")
     div#arrows(onselectstart="return false") 
-      span 发帖
+      span 评论
     form(class="form-horizontal" action="/add_post" method="post")
-      div(class="form-group")
-        div(class=" input-group")
-          span(class="input-group-addon") 标题
-          input(type="text" class="form-control" id="submit_title" name="title" autocomplete="off")
       div(class="form-group")
         div(class="nopadding")
           textarea(class="form-control" rows="10"  style="resize:none" name="content" id="submit_text" autocomplete="off")
       div(class="form-group")
         div(class="col-sm-offset-2  nopadding")
-          button(id="submit_content" type="submit" class="btn btn-success btn-block") 提交
+          button(id="submit_content" type="submit" class="btn btn-success btn-block") 提交评论
   button(style="display:none" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm" )
   div(class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="modal_tip")
     div(class="modal-dialog modal-sm" role="document")
@@ -49,4 +69,5 @@ block content
           span
         div(class="modal-footer")
           button(type="button" class="btn btn-block" data-dismiss="modal")="Close"
-  
+
+
