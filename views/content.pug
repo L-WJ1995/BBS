@@ -28,13 +28,41 @@ block content
         tr
           td
             span(class="user_content")= contentData.content
+            if(contentData.isContentUser)
+              button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal" style="float:right;margin:25px 192px 0 20px")="删除"
+            div.ico
+              label()
+                input(type="checkbox" class="ico-click")
+                div(class="ico-1")
+              span 1
         each val in commentData
           tr
             td(class="comment_box")
-              span= val.comment
-              div
+              span(class="user_comment")= val.comment
+              div(class="comments")
+                span(style="display:none")= val.id
                 span= val.time
                 span= val.username
+                if(user.name === val.username)
+                  button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal")="删除"
+                span 0
+                button(class="btn_comments_Comments" type="button" class="btn btn-primary btn-xs" data-dismiss="modal")="评论"
+                div.ico
+                  label
+                    input(type="checkbox" class="ico-click")
+                    div(class="ico-1")
+                  span 0
+                div(class="commentsComments")
+                  form(class="form-horizontal" action="/add_commentsComments" method="post")
+                    div(class="form-group")
+                      div(class="nopadding")
+                        button(type="button" class="btn btn-primary  btn-block") 评论&nbsp;&nbsp;&nbsp;#{val.username}
+                    div(class="form-group")
+                      div(class="nopadding")
+                        textarea(class="form-control submit_text" rows="10"  style="resize:none" name="content" autocomplete="off")
+                    div(class="form-group")
+                      div(class="col-sm-offset-2  nopadding")
+                        button(class="submit_content" type="submit" class="btn btn-success btn-block") 提交评论
               if (val.comments)
                 div(class="comment_comment_box")
                   ul
@@ -48,16 +76,16 @@ block content
                         div
                           span= comment_val.time
                           span= comment_val.username
-  div(class="submit_content")
+  div(class="submit_content_box")
     div#arrows(onselectstart="return false") 
       span 评论
-    form(class="form-horizontal" action="/add_post" method="post")
+    form(class="form-horizontal" action="/add_comment" method="post")
       div(class="form-group")
         div(class="nopadding")
-          textarea(class="form-control" rows="10"  style="resize:none" name="content" id="submit_text" autocomplete="off")
+          textarea(class="form-control submit_text" rows="10"  style="resize:none" name="content"  autocomplete="off")
       div(class="form-group")
         div(class="col-sm-offset-2  nopadding")
-          button(id="submit_content" type="submit" class="btn btn-success btn-block") 提交评论
+          button(class="submit_content" type="submit" class="btn btn-success btn-block") 提交评论
   button(style="display:none" type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm" )
   div(class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="modal_tip")
     div(class="modal-dialog modal-sm" role="document")

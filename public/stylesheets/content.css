@@ -2,7 +2,10 @@
   width: 900px;
   margin: 50px auto 0 auto;
   box-shadow: 0 0 15px 8px rgba(0,0,0,0.5);
-  word-break: normal; 
+}
+
+table .user_content,table .user_comment{
+  white-space: pre-wrap; 
 }
 
 table.table.table-hover{
@@ -23,6 +26,13 @@ table.table.table-hover{
   text-align: left;
 }
 
+
+#content_title div {
+  margin-top: 15px;
+  margin-left:20px;
+  font-weight: 600;
+}
+
 #content_title div span{
   float:right;
   margin-left:20px;
@@ -32,31 +42,27 @@ table.table.table-hover{
 table.table.table-hover td{
   cursor:pointer;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow:ellipsis;
 }
 
 
-.user_content{
-  white-space: pre-wrap;
-}
 
-.submit_content .form-horizontal .form-group{
+.submit_content_box .form-horizontal .form-group{
   margin-left:0;
   margin-right:0;
 }
 
-.submit_content div.nopadding{
+.submit_content_box div.nopadding{
   padding-left:0; 
   padding-right:0;
 }
 
-.submit_content .form-group>div:first-child{
+.submit_content_box .form-group>div:first-child{
   float: none;
   margin:auto;
 }
 
-.submit_content{
+.submit_content_box{
   z-index: 100;
   width:700px; 
   position: fixed;
@@ -79,18 +85,18 @@ table.table.table-hover td{
   border-right-color:#666666;
   z-index: 1000;
   opacity: 1;
-  transition: .5s;
+  transition: .6s ease;
 }
 
 .trans-in{
   left:50%;
   margin-left: -350px;
-  transition: 1s ease;
+  transition: .6s ease;
 }
 
 .trans-out{
   opacity: 0;
-  transition: 1s ease;
+  transition: .6s ease;
 }
 
 #arrows:hover{
@@ -124,6 +130,50 @@ table.table.table-hover td{
   filter: blur(20px);
 }
 
+
+
+.ico{
+  margin-top: 22.5px;
+  float:right;
+  height: 25px;
+}
+
+.ico label{
+
+  display: inline;
+}
+
+.ico span{
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+  margin:0;
+  font-weight: 600;
+}
+
+.ico .ico-1 {
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+  width: 25px;
+  -webkit-background-size: 1400px auto;
+  background-size: 1400px auto;
+  background-position: -11px center;
+  background-repeat: no-repeat;
+  background-image: url(/images/web_heart_animation_edge.png);
+}
+
+
+.ico-click {
+    display: none;
+}
+
+.ico-click:checked ~ div {
+    background-position: -1363px center;
+    transition: background-color 1.5s;
+    transition: background-position 1.5s steps(28);
+}
+
 #shade{
   display: none;
   position: fixed;
@@ -131,21 +181,72 @@ table.table.table-hover td{
   height: 100%;
   background-color:transparent;
   z-index: 100;
-  transition: 1s;
+  transition: .6s ease;
 }
 
 table tr:nth-of-type(n + 2) td > span:first-child{
   font-size: 16px;
 }
 
-.comment_box div span{
+.comment_box div.comments > span, .comment_box div.comments button{
   float:right;
   margin-left:20px;
   margin-top: 25px;
   font-weight: 600;
+  vertical-align: bottom;
 }
 
-.comment_box > div{
+ .comment_box div.comments button:nth-of-type(1){
+  margin-right:10px;
+ }
+
+ .comment_box div.comments button:nth-of-type(2){
+  margin-right:-10px;
+ }
+
+.comment_box div.comments > span:nth-of-type(3){
+  margin-left:5px;
+
+}
+
+.comment_box > div.comments{
   height: 50px;
+}
+
+.commentsComments .form-horizontal .form-group{
+  margin-left:0;
+  margin-right:0;
+}
+
+.commentsComments div.nopadding{
+  padding-left:0; 
+  padding-right:0;
+}
+
+.commentsComments .form-group>div:first-child{
+  float: none;
+  margin:auto;
+}
+
+.commentsComments{
+  z-index: 100;
+  width: 720px;
+  position: fixed;
+  margin-top:-155px;
+  top: 50%;
+  padding: 0 60px;
+  left:50%;
+  margin-left: -350px;
+}
+
+.commentsComments form {
+  font-size: 0;
+  height: 0;
+  transition: .6s;
+  overflow: hidden;
+}
+
+.comment_box div.comments .commentsComments button{
+  margin-top: 0px;
 }
 

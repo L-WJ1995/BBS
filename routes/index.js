@@ -3,7 +3,7 @@ const svgCaptcha = require('svg-captcha')
 const router = express.Router()
 
 /* GET home page. */
-router.get('/', async function(req, res, next) {
+router.get('/', async function(req, res, next) {      //登录中转
   if(req.session && req.session.login) {
     let datas = await db.all('SELECT * FROM contents ORDER BY id DESC')
     res.render("home", {user:req.user, datas})
@@ -24,7 +24,7 @@ router.get('/', async function(req, res, next) {
   }
 })
 
-router.get('/captcha', function(req, res, next) {
+router.get('/captcha', function(req, res, next) {   //发送验证码
   let captcha = svgCaptcha.createMathExpr({noise:3, color:true, height:33.9, width:80,})
   req.session.captcha = captcha.text.toUpperCase()
   req.session.latsCaptchaTime = Date.now()
@@ -34,7 +34,7 @@ router.get('/captcha', function(req, res, next) {
   res.json({status:200, result:captcha.data, msg:"验证码"})
 })
 
-router.post('/registerORlogin', async (req, res, next) => {
+router.post('/registerORlogin', async (req, res, next) => {     //登录或注册
   req.session.latsCaptchaTime = req.session.latsCaptchaTime || Date.now()
   if (Date.now() - req.session.latsCaptchaTime > 180000)  {
     console.log("验证码超时")
@@ -66,7 +66,7 @@ router.post('/registerORlogin', async (req, res, next) => {
     }
   }
 
-  if (req.body.type === "login") {
+  if (req.body.type === "login") {    //登录
     let findUser = await db.get('SELECT name FROM users WHERE name = ?', req.body.username)
     if (!findUser) return res.json({status:201, type:req.body.type, msg:"用户名不存在"})
     else {
@@ -81,13 +81,13 @@ router.post('/registerORlogin', async (req, res, next) => {
 
 })
 
-router.get('/logOut', (req, res, next) => {
+router.get('/logOut', (req, res, next) => {  //退出登录
   res.clearCookie('userID')
   res.redirect('/')
 })
 
 
-router.post('/add_post', async (req, res, next) => {
+router.post('/add_post', async (req, res, next) => {     //发表文章
   console.log(req.body.content)
   if (req.user && req.user.id - 0 >= 0) {
     await db.run('INSERT INTO contents (title, content, time, userid, username) VALUES (?,?,?,?,?)', 
@@ -104,31 +104,66 @@ router.post('/add_post', async (req, res, next) => {
 
 
 
-router.get('/content/:contentID', async (req, res, next) => {
+router.get('/content/:contentID', async (req, res, next) => {   //获取文章详情页
   let contentData = await db.get('SELECT * FROM contents WHERE id=?', req.params.contentID)
   let commentData = await db.all('SELECT * FROM comments WHERE contentid=? ORDER BY id ASC', req.params.contentID)
+  await Promise.all(commentData.map((item) => {
+    return db.all('SELECT * FROM commentsComments WHERE commentid=? ORDER BY id ASC', item.id)
+  }))
+  .then((datas) => {
+    datas.forEach((item,index) => {
+      commentData[index].commentsComments = item
+    })
+  })
 
-  for (let data of commentData) {
-    console.log(data)
-    data.commentsComments = await db.all('SELECT * FROM commentsComments WHERE commentid=? ORDER BY id ASC', data.id)
-    console.log(data)
-    console.log(commentData)
-  }
-
+  console.log(commentData)
   if (contentData.username === req.user.name) contentData.isContentUser = true
   console.log(contentData)
   console.log(commentData)
-  res.cookie('contentID', req.params.contentID, {httpOnly: true, signed: true})
   res.render('content',{user:req.user, contentData, commentData})
 })
 
 
-router.post('/add_comment', async (req, res, next) => {
-  console.log(req.body.comment)
+router.post('/add_comment', async (req, res, next) => {     //提交评论
+  console.log(req.body.text)
   if (req.user && req.user.id - 0 >= 0) {
     await db.run('INSERT INTO comments (comment, contentid, userid, username, time) VALUES (?,?,?,?,?)', 
-           req.body.comment, req.contentID, req.user.id, req.user.name, new Date().toLocaleString())
-    res.json({status:100, msg:"评论成功", contentID:req.contentID})
+           req.body.text, req.body.contentID, req.user.id, req.user.name, new Date().toLocaleString())
+    res.json({status:100, msg:"评论成功", contentID:req.body.contentID})
+  } else {
+      req.session.login = false
+      res.clearCookie('userID')
+      res.json({status:201, msg:"用户身份过期"})
+  }
+})
+
+
+router.post('/add_commentsComments', async (req, res, next) => {     //提交评论的评论
+  console.log(req.body.text)
+  let time = new Date().toLocaleString()
+  let isCommentuser
+  if (req.user && req.user.id - 0 >= 0) {
+    await db.run('INSERT INTO commentsComments (userid, username, commentid, tousername, time, text) VALUES (?,?,?,?,?,?)', 
+           req.user.id, req.user.name, req.body.commentid, req.body.tousername, time, req.body.text)
+    if (req.body.tousername === req.user.name) isCommentuser = true
+    res.json({status:101, msg:"评论成功", text:req.body.text, time, tousername:req.body.tousername, 
+              isCommentuser, username:req.user.name, commentid:req.body.commnetid})
+  } else {
+      req.session.login = false
+      res.clearCookie('userID')
+      res.json({status:201, msg:"用户身份过期"})
+  }
+})
+
+router.get('/commentsComments/:contentID/:commentID', async (req, res, next) => {     //提交评论的评论
+  console.log(req.body.text)
+  let time = new Date().toLocaleString()
+  let isCommentuser
+  if (req.user && req.user.id - 0 >= 0) {
+    await db.run('INSERT INTO commentsComments (userid, username, commentid, tousername, time, text) VALUES (?,?,?,?,?,?)', 
+           req.user.id, req.user.name, req.body.commentid, req.body.tousername, time, req.body.text)
+    if (req.body.tousername === req.user.name) isCommentuser = true
+    res.json({status:101, msg:"评论成功", text:req.body.text, time, tousername:req.body.tousername, isCommentuser, username:req.user.name})
   } else {
       req.session.login = false
       res.clearCookie('userID')
