@@ -29,7 +29,7 @@ block content
           td
             span(class="user_content")= contentData.content
             if(contentData.isContentUser)
-              button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal" style="float:right;margin:25px 192px 0 20px")="删除"
+              button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal" style="float:right;margin:25px 0px 0 20px")="删除"
             div.ico
               label()
                 input(type="checkbox" class="ico-click")
@@ -38,15 +38,21 @@ block content
         each val in commentData
           tr
             td(class="comment_box")
+              if (val.sumComments > 0)
+                div.switch
+                  button(class="btn btn-block btn-xs") 展开评论
+              else
+                div.switch(style="display:none")
+                  button(class="btn btn-block btn-xs") 展开评论
               span(class="user_comment")= val.comment
               div(class="comments")
                 span(style="display:none")= val.id
                 span= val.time
                 span= val.username
                 if(user.name === val.username)
-                  button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal")="删除"
-                span 0
-                button(class="btn_comments_Comments" type="button" class="btn btn-primary btn-xs" data-dismiss="modal")="评论"
+                  button(type="button" class="btn btn-danger btn-xs delete-btn" data-dismiss="modal")="删除"
+                span(class="sumComments")= val.sumComments
+                button(class="btn_comments_Comments comment-btn" type="button" class="btn btn-primary btn-xs" )="评论"
                 div.ico
                   label
                     input(type="checkbox" class="ico-click")
@@ -63,19 +69,29 @@ block content
                     div(class="form-group")
                       div(class="col-sm-offset-2  nopadding")
                         button(class="submit_content" type="submit" class="btn btn-success btn-block") 提交评论
-              if (val.comments)
                 div(class="comment_comment_box")
                   ul
-                    each comment_val in val.comments
-                      li
-                        if (comment_val.username === val.username)
-                          span 层主 #{comment_val.username} 回复 #{val.tousername}:
-                        else
-                          span #{comment_val.username} 对 #{val.tousername} 说:
-                        span= comment_val.saycomment
-                        div
-                          span= comment_val.time
-                          span= comment_val.username
+                    li.clone(style="display:none")
+                      span
+                      br 
+                      span
+                      div(class="reply_tip")
+                        span(style="float:right; margin:1px 15px 0 0")
+                        button(type="button" class="btn btn-xs  temp")
+                        button(type="button" class="btn btn-xs  btn-success lookTalk" style="display:none") 查看对话         
+                      div(class="reply_text" style="display:none")
+                          input(type="text" maxlength="number")
+                          button(class="btn btn-xs notClick "  disabled) 提交
+                          button(class="btn btn-xs") 取消
+                          span(style="display:none")
+                  ul(style="" class="lookTalk_container")
+                    li.clone_lookTalk(style="display:none")
+                      span
+                      br 
+                      span(style="font-size:16px")
+                      br 
+                      span(style="float:right")
+                  button(class="return btn btn-primary" style="display:none" onclick='btn_return(this)') 返  回
   div(class="submit_content_box")
     div#arrows(onselectstart="return false") 
       span 评论
@@ -96,6 +112,6 @@ block content
         div(class="modal-body" style="font-size:18px; text-indent:20px;")
           span
         div(class="modal-footer")
-          button(type="button" class="btn btn-block" data-dismiss="modal")="Close"
+          button(type="button" class="btn btn-block Close-modal" data-dismiss="modal")="Close"
 
 

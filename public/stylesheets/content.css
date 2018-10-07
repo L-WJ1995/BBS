@@ -186,23 +186,32 @@ table.table.table-hover td{
 
 table tr:nth-of-type(n + 2) td > span:first-child{
   font-size: 16px;
+  word-break: break-all;
 }
+
+table tr:nth-of-type(n + 2) td > span.user_comment{
+  font-size: 16px;
+  word-break: break-all;
+}
+
+
 
 .comment_box div.comments > span, .comment_box div.comments button{
   float:right;
-  margin-left:20px;
+  margin-left:10px;
   margin-top: 25px;
   font-weight: 600;
   vertical-align: bottom;
 }
 
- .comment_box div.comments button:nth-of-type(1){
-  margin-right:10px;
+.comment_box div.comments > span.sumComments{
+  margin-left: 10px;
+}
+
+ .comment_box div.comments > button.comment-btn{
+  margin-right:0px;
  }
 
- .comment_box div.comments button:nth-of-type(2){
-  margin-right:-10px;
- }
 
 .comment_box div.comments > span:nth-of-type(3){
   margin-left:5px;
@@ -250,3 +259,201 @@ table tr:nth-of-type(n + 2) td > span:first-child{
   margin-top: 0px;
 }
 
+.comment_box{
+  position: relative;
+}
+
+.switch{
+  text-align: center;
+  position: absolute;
+  height: 22px;
+  width: 100px;
+  bottom: 10px;
+  left: 8px;
+  vertical-align: middle;
+}
+
+.switch .btn {
+  height: 100%;
+  line-height: 20px;
+  vertical-align: middle;
+  background-color: #993366;
+  color: white;
+}
+
+.switch:hover{
+  transform-origin:50% 50%;
+
+  animation: myrotate 2s linear infinite ;
+}
+
+@keyframes myrotate {
+  0% {
+    transform:rotate(0deg)
+  }
+  25% {
+    transform:rotate(12deg)
+  }
+  50% {
+    transform:rotate(0deg)
+  }
+  75% {
+    transform:rotate(-12deg)
+  }
+  100% {
+    transform:rotate(0deg)
+  }
+}
+
+
+
+.comment_comment_box{
+  word-break: break-all;
+  overflow: hidden;
+  position: fixed;
+  display: none;
+  opacity:0;
+  width: 700px;
+  height: 600px;
+  top:70px;
+  left:0;
+  right: 0;
+  margin:auto;
+  z-index: 100;
+  transition: .6s linear;
+}
+
+.comment_comment_box_in{
+  opacity:1;
+}
+
+
+.comment_comment_box ul{
+  overflow: auto;
+  height: 100%;
+  background-color:rgba(255,255,255,0.6);
+  padding:25px 70px 25px 80px;
+  margin-bottom: 0;
+}
+
+.comment_comment_box ul:first-child{
+  margin-left:700px;
+  transition: .6s linear;
+  width: 683px;
+}
+
+.comment_comment_box ul.move_in{
+  margin-left:0px;
+  transition: .6s linear;
+}
+
+
+.comment_comment_box ul li{
+  width: 100%;
+}
+
+.comment_comment_box ul li:hover > div.reply_tip > button{
+  opacity: 1;
+  transition: 1s linear;
+}
+
+.comment_comment_box ul li > div{
+  width: 100%;
+  margin-top:10px;
+  vertical-align: middle;
+  display: flow-root;
+}
+.comment_comment_box ul li div *{
+  vertical-align: middle;
+}
+
+.comment_comment_box ul li > div.reply_tip > button{
+  opacity: 0;
+  margin-right: 10px;
+  margin-top: 0 !important;
+  transition: 1s linear;
+}
+
+.comment_comment_box ul li > span:first-child{
+  font-weight: 600;
+  margin-bottom:10px;
+}
+
+.comment_comment_box ul li > span:nth-of-type(2){
+  letter-spacing:1px;
+}
+
+.comment_comment_box ul li:nth-last-of-type(n + 2){
+  width: 100%;
+  margin-bottom:20px;
+}
+
+.comment_comment_box ul li span{
+  display: inline-block;
+}
+
+.comment_comment_box ul li .reply_text{
+  width: 100%;
+  height: 21.73px;
+}
+
+.reply_text input{
+  display: inline-block;
+  width: 75%;
+  height: 100%;
+}
+
+.reply_text button{
+  display: inline-block;
+  width: 8%;
+  vertical-align: middle !important;
+  margin-top:0 !important;
+  float: none !important;
+}
+
+
+.reply_text button:nth-of-type(2):hover{
+  background-color: #eea236;
+}
+
+.notClick{
+  cursor: no-drop;
+}
+
+.comment_comment_box .lookTalk_container{
+  width:100%;
+  padding:0;
+  overflow: auto;
+  transition:margin-left .6s linear;
+  white-space:nowrap;
+  margin-left:-700px;
+  margin-top:-600px;
+  background-color:rgba(255,255,255,0.9);
+}
+
+.comment_comment_box .lookTalk_container_in{
+  margin-left:0px;
+  padding:25px 70px 25px 80px;
+  transition:margin-left .6s linear;
+}
+
+.comment_box .comment_comment_box .return{
+  float: none;
+  margin:0;
+  width: 700px;
+  line-height: 35px;
+  height: 0px;
+  font-size: 0px;
+  vertical-align: middle;
+  position: fixed;
+  margin-top:20px;
+  transition:height .6s linear, font-size 0s ;
+  padding: 0;
+  border: none;
+}
+
+.comment_box .comment_comment_box .return_in{
+  height: 33px;
+  font-size: 15px;
+  transition:height .6s linear, font-size 0s  linear .6s;
+}

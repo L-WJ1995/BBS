@@ -3,9 +3,7 @@ const express = require('express')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
-const bodyParser = require('body-parser')
 const session = require('express-session')
-
 const indexRouter = require('./routes/index')
 
 
@@ -19,8 +17,8 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 
 app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json()) //解析json请求数据
+app.use(express.urlencoded({ extended: false }))  //解析URL参数
 app.use(cookieParser('pppasdqwkmcworpw'))
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -40,7 +38,6 @@ app.use(session({
 
 app.use(async (req, res, next) => {
   req.user = await db.get('SELECT * FROM users WHERE id= ?', req.signedCookies.userID)
-  req.contentID = req.signedCookies.contentID
   next()
 })
 
