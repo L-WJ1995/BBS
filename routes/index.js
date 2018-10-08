@@ -91,8 +91,8 @@ router.get('/logOut', (req, res, next) => {  //退出登录
 router.post('/add_post', async (req, res, next) => {     //发表文章
   console.log(req.body.content)
   if (req.user && req.user.id - 0 >= 0) {
-    db.run('INSERT INTO contents (title, content, time, userid, username) VALUES (?,?,?,?,?)', 
-           req.body.title, req.body.content, new Date().toLocaleString(), req.user.id - 0, req.user.name)
+    db.run('INSERT INTO contents (title, content, time, userid, username, greatNumber, browseNumber) VALUES (?,?,?,?,?,?,?)', 
+           req.body.title, req.body.content, new Date().toLocaleString(), req.user.id - 0, req.user.name, 0, 0)
     let contentID = await db.get('SELECT id FROM contents WHERE  username=? ORDER BY id DESC LIMIT 1', req.user.name)
     res.json({status:100, msg:"发帖成功", userID: req.user.id, contentID:contentID.id})
   } else user_error(req, res)
@@ -104,10 +104,25 @@ router.post('/add_post', async (req, res, next) => {     //发表文章
 router.get('/content/:contentID', async (req, res, next) => {   //获取文章详情页
   if (req.user && req.user.id - 0 >= 0) {
     let contentData = await db.get('SELECT * FROM contents WHERE id=?', req.params.contentID - 0)
-    if (!contentData) res.redirect('/') 
-    let commentData = await db.all('SELECT * FROM comments WHERE contentid=? ORDER BY id ASC', req.params.contentID - 0)
+    if (!contentData) res.redirect('/')
+    let contentGreat
+    let datas = await Promise.all([db.all('SELECT * FROM comments WHERE contentid=? ORDER BY id ASC', req.params.contentID - 0),
+                                   db.get('SELECT * FROM users WHERE id=?', req.user.id - 0),
+                                   db.get('SELECT browsingHistory FROM users WHERE id=?', req.user.id)])
+    let commentData = datas[0]
+    let commentsGreat = datas[1].greatCommentsHistory
+    let userBrows = datas[2]
+    if (!userBrows.browsingHistory || userBrows.browsingHistory.indexOf(`[${req.params.contentID}]`) < 0) {
+      userBrows = `[${req.params.contentID}]` + (userBrows.browsingHistory ? userBrows.browsingHistory : "")
+      db.run('UPDATE users SET browsingHistory = ? WHERE id = ?', userBrows, req.user.id - 0)
+      db.run('UPDATE contents SET browseNumber = browseNumber + 1 WHERE id = ?', req.params.contentID)
+    }
+    if (datas[1].greatHistory && datas[1].greatHistory.indexOf(`[${req.params.contentID}]`) >= 0) contentGreat = true
+    commentData.forEach((item) => {
+      if (commentsGreat && commentsGreat.indexOf(`[${item.id}]`) >= 0) item.great = true
+    })
     if (contentData.username === req.user.name) contentData.isContentUser = true
-    res.render('content',{user:req.user, contentData, commentData})
+    res.render('content',{contentGreat, user:req.user, contentData, commentData})
   } else user_error(req, res)
 })
 
@@ -115,8 +130,8 @@ router.get('/content/:contentID', async (req, res, next) => {   //获取文章�
 router.post('/add_comment', async (req, res, next) => {     //提交评论
   console.log(req.body.text)
   if (req.user && req.user.id - 0 >= 0) {
-    db.run('INSERT INTO comments (comment, contentid, userid, username, time, sumComments) VALUES (?,?,?,?,?,?)', 
-           req.body.text, req.body.contentID - 0, req.user.id - 0, req.user.name, new Date().toLocaleString(), 0)
+    db.run('INSERT INTO comments (comment, contentid, userid, username, time, sumComments, greatNumber) VALUES (?,?,?,?,?,?,?)', 
+           req.body.text, req.body.contentID - 0, req.user.id - 0, req.user.name, new Date().toLocaleString(), 0, 0)
     res.json({status:100, msg:"评论成功", contentID:req.body.contentID})
   } else user_error(req, res)
 })
@@ -158,7 +173,7 @@ router.post('/replyComment', async (req, res, next) => {     //提交评论的�
 })
 
 
-router.get('/usersTalk/:contentID/:commentid/:lookUserID/:tousername', async (req, res, next) => {     //获取评论的评论
+router.get('/usersTalk/:contentID/:commentid/:lookUserID/:tousername', async (req, res, next) => {     //获取对话评论
   if (req.user && req.user.id - 0 >= 0) {
     let data = await db.all('SELECT * FROM commentsComments WHERE contentid=? AND commentid=? AND (userid=? OR username=?) ORDER BY id ASC', 
       req.params.contentID - 0, req.params.commentid - 0, req.params.lookUserID - 0, decodeURI(req.params.tousername))
@@ -167,14 +182,77 @@ router.get('/usersTalk/:contentID/:commentid/:lookUserID/:tousername', async (re
 })
 
 
+router.delete('/delete/content/:contentid', async (req, res, next) => {     //删除文章
+  if (req.user && req.user.id - 0 >= 0) {
+    let contentUser = await db.get('SELECT * FROM contents WHERE id=?', req.params.contentid - 0)
+    if (req.user.id === contentUser.userid && req.user.name === contentUser.username) {
+      db.run('DELETE FROM contents WHERE id = ?', req.params.contentid - 0)
+      db.run('DELETE FROM comments WHERE contentid = ?', req.params.contentid - 0)
+      db.run('DELETE FROM commentsComments WHERE contentid = ?', req.params.contentid - 0)
+      res.json({status:50, msg:"删除成功"})  
+    } else user_error(req, res)
+  } else user_error(req, res)
+})
 
 
 
 
+router.delete('/delete/comment/:contentid/:commentid', async (req, res, next) => {     //删除文章评论
+  if (req.user && req.user.id - 0 >= 0) {
+    let commentUser = await db.get('SELECT * FROM comments WHERE id=?', req.params.commentid - 0)
+    if (req.user.id === commentUser.userid && req.user.name === commentUser.username) {
+      db.run('DELETE FROM comments WHERE id = ?', req.params.commentid - 0)
+      db.run('DELETE FROM commentsComments WHERE commentid = ?', req.params.commentid - 0)
+      res.json({status:51, msg:"删除成功"})  
+    } else user_error(req, res)
+  } else user_error(req, res)
+})
 
 
+router.delete('/delete/commentsComments/:contentid/:commentid/:commentsCommentsid', async (req, res, next) => {     //删除文章评论的评论
+  if (req.user && req.user.id - 0 >= 0) {
+    let commentsCommentsUser = await db.get('SELECT * FROM commentsComments WHERE id=?', req.params.commentsCommentsid - 0)
+    if (req.user.id === commentsCommentsUser.userid && req.user.name === commentsCommentsUser.username) {
+      db.run('DELETE FROM commentsComments WHERE id = ?', req.params.commentsCommentsid - 0)
+      db.run('UPDATE comments SET sumComments = sumComments - 1 WHERE id = ?', req.params.commentid - 0)
+      res.json({status:52, msg:"删除成功"})  
+    } else user_error(req, res)
+  } else user_error(req, res)
+})
 
-
+router.put('/greatNumber/:contentid/:target/:status/:commentid',  async (req, res, next) => {     //更新点赞数据
+  if (req.user && req.user.id - 0 >= 0) {
+    let userContentGreat, userCommentGreat
+    if (req.params.status - 0 === 1) {
+      if (req.params.target - 0 === 1) {
+        db.run('UPDATE contents SET greatNumber = greatNumber + 1 WHERE id = ?', req.params.contentid - 0)
+        userContentGreat = await db.get('SELECT greatHistory FROM users WHERE id=?', req.user.id)
+        userContentGreat = `[${req.params.contentid}]` + (userContentGreat.greatHistory ? userContentGreat.greatHistory : "")
+        db.run('UPDATE users SET greatHistory = ? WHERE id = ?', userContentGreat, req.user.id - 0)
+      }
+      else {
+        db.run('UPDATE comments SET greatNumber = greatNumber + 1 WHERE id = ?', req.params.commentid - 0)
+        userCommentGreat = await db.get('SELECT greatCommentsHistory FROM users WHERE id=?', req.user.id - 0)
+        userCommentGreat = `[${req.params.commentid}]` + (userCommentGreat.greatCommentsHistory ? userCommentGreat.greatCommentsHistory : "")
+        db.run('UPDATE users SET greatCommentsHistory = ? WHERE id = ?', userCommentGreat, req.user.id - 0)
+      }
+    } else {
+      if (req.params.target - 0 === 1) {
+        db.run('UPDATE contents SET greatNumber = greatNumber - 1 WHERE id = ?', req.params.contentid - 0)
+        userContentGreat = await db.get('SELECT greatHistory FROM users WHERE id=?', req.user.id)
+        userContentGreat = userContentGreat.greatHistory.replace(`[${req.params.contentid}]`, "")
+        db.run('UPDATE users SET greatHistory = ? WHERE id = ?', userContentGreat, req.user.id - 0)
+      }
+      else {
+        db.run('UPDATE comments SET greatNumber = greatNumber - 1 WHERE id = ?', req.params.commentid - 0)
+        userCommentGreat = await db.get('SELECT greatCommentsHistory FROM users WHERE id=?', req.user.id - 0)
+        userCommentGreat = userCommentGreat.greatCommentsHistory.replace(`[${req.params.commentid}]`, "")
+        db.run('UPDATE users SET greatCommentsHistory = ? WHERE id = ?', userCommentGreat, req.user.id - 0)
+      }
+    }
+    res.json({status:53, msg:"点赞(取消点赞)"})  
+  } else user_error(req, res)
+})
 
 
 function user_error(req, res){

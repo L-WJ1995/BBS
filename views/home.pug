@@ -19,11 +19,14 @@ block content
       each data in datas
         tr
           td(title=data.title)
-            a(target="_blank" href="/getcontent/" + data.id)= data.title
+            a(target="_blank" href="/content/" + data.id)= data.title
           td
-            a(target="_blank" href="/getuser/" + data.id)= data.username
+            //本意转到用户页面  未做
+            a(target="_blank" href="/content/" + data.id )= data.username   
           td
-            a(target="_blank" href="/getcontent/" + data.id)= data.time
+            a(target="_blank" href="/content/" + data.id) 浏览次数：#{data.browseNumber}
+          td(style="width:150px")
+            a(target="_blank" href="/content/" + data.id)= data.time
   div(class="submit_content")
     div#arrows(onselectstart="return false") 
       span 发帖

@@ -110,6 +110,36 @@ $('.submit_content').click(function(e){
 function res_status(data, el) {
   console.log(data)
   switch(data.status) {
+    case 50: {
+      $(".modal-title span").text("删除成功")
+      $(".modal-body span").text("正在返回")
+      $(".modal-footer button").removeClass("btn-warning").addClass("btn-success").text("刷新中...")
+      $(".bs-example-modal-sm").modal("show")
+      setTimeout(() => window.location.href = "/", 100)
+      break
+    }
+
+    case 51: {
+      el.parents('.comment_box').remove()
+      break
+    }
+
+    case 52: {
+      el.parents('.comments').find('.sumComments').text(el.parents('.comments').find('.sumComments').text() - 1)
+      if (el.parents('.comments').find('.sumComments').text() - 0 === 0) {
+        el.parents('.comment_box').find('.switch').css('display','none')
+        shade.click()
+      }
+      el.parent().parent().remove()
+      break
+    }
+
+    case 53: {
+      if (data.status_ === 1) el.parent().parent().find('span').text(el.parent().parent().find('span').text() - 0 + 1)
+      else el.parent().parent().find('span').text(el.parent().parent().find('span').text() - 1)
+      break
+    }
+
     case 100: {
       $(".modal-title span").text("评论成功")
       $(".modal-body span").text("正在刷新")
@@ -156,9 +186,6 @@ function res_status(data, el) {
       createLookTales(data.data, el.parents('.comment_comment_box').find('ul:nth-child(2)'))
       break
     }
-
-
-
   }
   
 }
@@ -168,7 +195,7 @@ function modal_status() {
   $(".bs-example-modal-sm").modal("show")
   let modal_ID = setTimeout(() => {
     $(".bs-example-modal-sm").modal("hide")
-  }, 1500)
+  }, 500)
   $(".bs-example-modal-sm").on("hidden.bs.modal", () => {
     clearTimeout(modal_ID)
     $(".bs-example-modal-sm").off("hidden.bs.modal")
@@ -197,7 +224,7 @@ function createComment_s(data, el) {
     spans[0].textContent = item.tousername ? `${item.username} 评论 ${item.tousername} :` : `${item.username} 评论 :`
     spans[1].textContent = item.text
     spans[2].textContent = item.time
-    spans[3].textContent = JSON.stringify([item.userid,item.username,item.tousername,item.commentid,item.commentsCommentsId])
+    spans[3].textContent = JSON.stringify([item.userid,item.username,item.tousername,item.commentid,item.id])
     if (item.username === data.user) $('.clone').find('button.temp').text("删除").removeClass('btn-primary').addClass('btn-danger')
     else $('.clone').find('button.temp').text("评论").removeClass('btn-danger').addClass('btn-primary')
     el.find('.clone').clone().removeClass('clone').css('display','block').appendTo(el)
@@ -230,8 +257,17 @@ function createLookTales(data, el) {
 
 
 $('.comment_comment_box').delegate('button.temp','click',function(){
-  $(this).parent().css('display','none')
-  $(this).parent().next('.reply_text').css('display','block')
+  if ($(this).text() === "评论") {
+    $(this).parent().css('display','none')
+    $(this).parent().next('.reply_text').css('display','block')
+  } else {
+    axios({
+      method:'delete',
+      url:`/delete/commentsComments/` + contentID + "/" + $(this).parents('.comment_box').find('.comments > span:first-child').text() + "/" + JSON.parse($(this).parent().next().find('span:last-child').text())[4],
+    }).then((res) => {
+        res_status(res.data, $(this))
+    })
+  }
 })
 
 $('.comment_comment_box').delegate('.reply_text button:nth-child(3)','click',function(){
@@ -288,7 +324,38 @@ function btn_return(el){
 }
 
 
-function update(data){
+$('.delete_content').click(function(){
+  axios({
+    method:'delete',
+    url:`/delete/content/` + contentID,
+  }).then((res) => {
+      res_status(res.data)
+  })
+})
 
-}
+$('.delete_comment').click(function(){
+  axios({
+    method:'delete',
+    url:`/delete/comment/` + contentID + "/" + $(this).parents('.comment_box').find('.comments > span:first-child').text(),
+  }).then((res) => {
+      res_status(res.data, $(this))
+  })
+})
 
+
+$('.ico .ico-1').click(function(){
+  let status, target, url
+  if ($(this).hasClass('content-ico')) target = 1
+  else target = 2
+  if ($(this).prev()[0].checked) status = 2
+  else  status = 1
+  if (target === 1) url = `/greatNumber/${contentID}/${target}/${status}/_`
+  else url = `/greatNumber/${contentID}/${target}/${status}/${$(this).parents('.comment_box').find('.comments > span:first-child').text()}`
+  axios({
+    method:'put',
+    url,
+  }).then((res) => {
+      res.data.status_ = status
+      res_status(res.data, $(this))
+  })  
+})

@@ -381,6 +381,7 @@ table tr:nth-of-type(n + 2) td > span.user_comment{
 
 .comment_comment_box ul li > span:nth-of-type(2){
   letter-spacing:1px;
+  white-space: pre-wrap;
 }
 
 .comment_comment_box ul li:nth-last-of-type(n + 2){
@@ -429,6 +430,10 @@ table tr:nth-of-type(n + 2) td > span.user_comment{
   margin-left:-700px;
   margin-top:-600px;
   background-color:rgba(255,255,255,0.9);
+}
+
+.comment_comment_box .lookTalk_container span{
+  white-space: pre-wrap;
 }
 
 .comment_comment_box .lookTalk_container_in{

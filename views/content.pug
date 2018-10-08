@@ -29,12 +29,13 @@ block content
           td
             span(class="user_content")= contentData.content
             if(contentData.isContentUser)
-              button(type="button" class="btn btn-danger btn-xs" data-dismiss="modal" style="float:right;margin:25px 0px 0 20px")="删除"
+              button(type="button" class="btn btn-danger btn-xs delete_content" data-dismiss="modal" style="float:right;margin:25px 0px 0 20px")="删除"
             div.ico
-              label()
-                input(type="checkbox" class="ico-click")
-                div(class="ico-1")
-              span 1
+              label
+                - var contentG = contentGreat 
+                input(type="checkbox" class="ico-click" checked=contentG)
+                div(class="ico-1 content-ico")
+              span #{contentData.greatNumber}
         each val in commentData
           tr
             td(class="comment_box")
@@ -50,14 +51,15 @@ block content
                 span= val.time
                 span= val.username
                 if(user.name === val.username)
-                  button(type="button" class="btn btn-danger btn-xs delete-btn" data-dismiss="modal")="删除"
+                  button(type="button" class="btn btn-danger btn-xs delete-btn delete_comment" data-dismiss="modal")="删除"
                 span(class="sumComments")= val.sumComments
                 button(class="btn_comments_Comments comment-btn" type="button" class="btn btn-primary btn-xs" )="评论"
                 div.ico
                   label
-                    input(type="checkbox" class="ico-click")
+                    - var great = val.great
+                    input(type="checkbox" class="ico-click" checked=great)
                     div(class="ico-1")
-                  span 0
+                  span #{val.greatNumber}
                 div(class="commentsComments")
                   form(class="form-horizontal" action="/add_commentsComments" method="post")
                     div(class="form-group")
@@ -78,7 +80,7 @@ block content
                       div(class="reply_tip")
                         span(style="float:right; margin:1px 15px 0 0")
                         button(type="button" class="btn btn-xs  temp")
-                        button(type="button" class="btn btn-xs  btn-success lookTalk" style="display:none") 查看对话         
+                        button(type="button" class="btn btn-xs  btn-success lookTalk" style="display:none") 查看对话 
                       div(class="reply_text" style="display:none")
                           input(type="text" maxlength="number")
                           button(class="btn btn-xs notClick "  disabled) 提交
