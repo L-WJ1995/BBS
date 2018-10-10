@@ -15,11 +15,11 @@ node app.js
 <table>
     <tr>
         <td ><center><img src="./public/images/登录页.png" >登录页 </center></td>
+        <td ><center><img src="./public/images/home页.png"  >home页</center></td>
         <td ><center><img src="./public/images/发帖.png"  >发帖</center></td>
-        <td ><center><img src="./public/images/测试页 .png" >测试页 </center></td>
     </tr>
      <tr>
-        <td ><center><img src="./public/images/发帖.png"  >发帖</center></td>
+        <td ><center><img src="./public/images/测试页 .png" >测试页 </center></td>
         <td ><center><img src="./public/images/评论.png" >评论 </center></td>
         <td ><center><img src="./public/images/查看对话.png"  >查看对话</center></td>
     </tr>
